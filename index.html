@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+
+    <meta charset="UTF-8">
+    <title>DRAW PICTURE</title>
+</head>
+
+<body>
+    <h1>DRAW PICTURE</h1>
+
+<div style="display: flex; flex-direction: row;">
+    <div style="display: flex; flex-direction: column; margin-right: 10px;">
+        <button id="resetButton" style="margin-bottom: 10px;">RESET</button>
+        <button id="saveButton">SAVE</button>
+    </div>
+    <canvas id="myCanvas" width="200" height="200" style="margin-left: 10px;"></canvas>
+</div>
+
+    <script>
+
+///////////////////////////////////////
+
+        // 保存ボタンを取得する
+        var saveButton = document.getElementById("saveButton");
+
+        // ボタンがクリックされたら、画像を保存する
+        saveButton.addEventListener("click", function () {
+            var fileName = "myDrawing.png";
+            var dataURL = canvas.toDataURL();
+            var blob = dataURLToBlob(dataURL);
+
+            var link = document.createElement("a");
+            link.download = fileName;
+            link.href = URL.createObjectURL(blob);
+            link.click();
+        });
+
+        // dataURLToBlob関数は前回の回答と同じです
+        function dataURLToBlob(dataURL) {
+            var arr = dataURL.split(',');
+            var mime = arr[0].match(/:(.*?);/)[1];
+            var bstr = atob(arr[1]);
+            var n = bstr.length;
+            var u8arr = new Uint8Array(n);
+            while (n--) {
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+            return new Blob([u8arr], { type: mime });
+        }
+
+///////////////////////////////////////
+
+
+        var resetButton = document.getElementById("resetButton");
+
+        resetButton.addEventListener("click", function () {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+        });
+
+///////////////////////////////////////
+
+        var canvas = document.getElementById("myCanvas");
+        var context = canvas.getContext("2d");
+        var isDrawing = false;
+        var lastX, lastY;
+
+        context.lineWidth = 5;
+        canvas.addEventListener("mousedown", function (e) {
+            isDrawing = true;
+            lastX = e.pageX - canvas.offsetLeft;
+            lastY = e.pageY - canvas.offsetTop;
+        });
+
+        canvas.addEventListener("mousemove", function (e) {
+            if (isDrawing) {
+                var currentX = e.pageX - canvas.offsetLeft;
+                var currentY = e.pageY - canvas.offsetTop;
+                context.beginPath();
+                context.moveTo(lastX, lastY);
+                context.lineTo(currentX, currentY);
+                context.stroke();
+                lastX = currentX;
+                lastY = currentY;
+            }
+        });
+
+        canvas.addEventListener("mouseup", function () {
+            isDrawing = false;
+        });
+    </script>
+</body>
+
+</html>
